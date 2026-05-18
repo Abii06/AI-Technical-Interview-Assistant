@@ -1,0 +1,23 @@
+# Operating Systems (OS)
+A process is a program in execution. It contains the program code, its activity, and its state.
+A thread is the smallest unit of execution within a process. Multithreading allows multiple threads to run concurrently.
+Deadlock is a situation where two or more processes are unable to proceed because each is waiting for the other to release a resource.
+Virtual Memory enables a computer to use hard disk space as additional RAM.
+
+# Database Management Systems (DBMS)
+ACID properties (Atomicity, Consistency, Isolation, Durability) ensure reliable database transactions.
+Normalisation is the process of organizing data in a database to reduce redundancy and improve data integrity.
+SQL vs NoSQL: SQL is relational and uses structured schema; NoSQL is non-relational and can be schema-less.
+Indexing is a way of optimizing the performance of a database by minimizing the number of disk accesses required.
+
+# Computer Networks (CN)
+OSI Model layers: Physical, Data Link, Network, Transport, Session, Presentation, Application.
+TCP vs UDP: TCP is connection-oriented and reliable; UDP is connectionless and faster.
+IP Addressing: IPv4 uses 32-bit addresses, while IPv6 uses 128-bit addresses.
+HTTP vs HTTPS: HTTPS is the secure version of HTTP, using SSL/TLS for encryption.
+
+# Data Structures & Algorithms (DSA)
+Time Complexity: Big O notation describes the upper bound of the time an algorithm takes to run.
+Hash Tables provide O(1) average time complexity for lookups using a hash function.
+Binary Search operates in O(log n) time but requires a sorted array.
+Dynamic Programming is an optimization technique that solves complex problems by breaking them into simpler sub-problems and storing results.
