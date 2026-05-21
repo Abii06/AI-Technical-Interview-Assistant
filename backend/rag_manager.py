@@ -8,7 +8,7 @@ class RAGManager:
     def __init__(self, data_path=None):
         # Resolve data path relative to the project root
         if data_path is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            base_dir = os.path.dirname(os.path.abspath(__file__))
             self.data_path = os.path.join(base_dir, "data", "kb.txt")
         else:
             self.data_path = data_path
