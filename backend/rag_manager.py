@@ -19,7 +19,7 @@ class RAGManager:
         # Initialize embeddings lazily; may fail if API key missing or network unavailable
         try:
             self.embeddings = GoogleGenerativeAIEmbeddings(
-                model="models/embedding-001",
+                model="gemini-embedding-001",
                 google_api_key=os.getenv("GEMINI_API_KEY")
             )
         except Exception as e:
