@@ -16,23 +16,38 @@ class RAGManager:
         else:
             self.data_path = data_path
 
-        self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/embedding-001",
-            google_api_key=os.getenv("GEMINI_API_KEY")
-        )
+        # Initialize embeddings lazily; may fail if API key missing or network unavailable
+        try:
+            self.embeddings = GoogleGenerativeAIEmbeddings(
+                model="models/embedding-001",
+                google_api_key=os.getenv("GEMINI_API_KEY")
+            )
+        except Exception as e:
+            print(f"Warning: Could not initialize GoogleGenerativeAIEmbeddings: {e}")
+            self.embeddings = None
         self.db = None
         self._initialize_db()
+
 
     def _initialize_db(self):
         if not os.path.exists(self.data_path):
             print(f"Warning: Data path {self.data_path} not found.")
             return
 
+        if self.embeddings is None:
+            print("Skipping vector store initialization due to missing embeddings.")
+            self.db = None
+            return
         loader = TextLoader(self.data_path)
         documents = loader.load()
         text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
         docs = text_splitter.split_documents(documents)
-        self.db = FAISS.from_documents(docs, self.embeddings)
+        try:
+            self.db = FAISS.from_documents(docs, self.embeddings)
+        except Exception as e:
+            print(f"Warning: Could not create FAISS vector store: {e}")
+            self.db = None
+
 
     def search(self, query, k=3):
         if not self.db:
