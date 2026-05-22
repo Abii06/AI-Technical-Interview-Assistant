@@ -1,19 +1,25 @@
 import os
+from dotenv import load_dotenv
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import CharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
+load_dotenv()
 
 class RAGManager:
     def __init__(self, data_path=None):
-        # Resolve data path relative to the project root
+        # Resolve data path relative to the backend directory
         if data_path is None:
             base_dir = os.path.dirname(os.path.abspath(__file__))
             self.data_path = os.path.join(base_dir, "data", "kb.txt")
         else:
             self.data_path = data_path
-            
-        self.embeddings = HuggingFaceEmbeddings()
+
+        self.embeddings = GoogleGenerativeAIEmbeddings(
+            model="models/embedding-001",
+            google_api_key=os.getenv("GEMINI_API_KEY")
+        )
         self.db = None
         self._initialize_db()
 

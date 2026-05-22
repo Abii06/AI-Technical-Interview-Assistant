@@ -6,6 +6,15 @@ import './App.css';
 
 const API_BASE = "http://localhost:8000";
 
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = Recognition ? new Recognition() : null;
+
+if (recognition) {
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState('explain');
   const [query, setQuery] = useState('');
@@ -21,8 +30,6 @@ function App() {
   
   // Voice State
   const [isListening, setIsListening] = useState(false);
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = Recognition ? new Recognition() : null;
 
   useEffect(() => {
     if (recognition) {
@@ -35,16 +42,36 @@ function App() {
         }
         setIsListening(false);
       };
-      recognition.onend = () => setIsListening(false);
+      
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
     }
   }, [activeTab]);
 
   const toggleListen = () => {
+    if (!recognition) {
+      alert("Speech recognition is not supported in your browser. Please try using Google Chrome or Microsoft Edge, and ensure you have granted microphone permissions.");
+      return;
+    }
     if (isListening) {
-      recognition?.stop();
+      try {
+        recognition.stop();
+      } catch (err) {
+        console.error("Speech recognition stop error:", err);
+      }
     } else {
-      recognition?.start();
-      setIsListening(true);
+      try {
+        recognition.start();
+        setIsListening(true);
+      } catch (err) {
+        console.error("Speech recognition start error:", err);
+      }
     }
   };
 
@@ -110,11 +137,11 @@ function App() {
     const sections = text.split(/🔴|🟢|🔵|🟡|🟣|💻/);
     return (
       <div className="answer-section">
-        {sections[1] && <div className="layer layer-green"><h3>🟢 Simple Explanation</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[1].replace("Simple Explanation:", "").trim()}</ReactMarkdown></div>}
-        {sections[2] && <div className="layer layer-blue"><h3>🔵 Technical Explanation</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[2].replace("Technical Explanation:", "").trim()}</ReactMarkdown></div>}
-        {sections[3] && <div className="layer layer-yellow"><h3>🟡 Interview Answer</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[3].replace("Interview Answer:", "").trim()}</ReactMarkdown></div>}
-        {sections[4] && <div className="layer layer-purple"><h3>🟣 Real-world Example</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[4].replace("Real-world Example:", "").trim()}</ReactMarkdown></div>}
-        {sections[5] && <div className="layer layer-code"><h3>💻 Code Implementation / Solution</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[5].replace("Code Implementation / Solution:", "").replace("Code Implementation:", "").trim()}</ReactMarkdown></div>}
+        {sections[1] && <div className="layer layer-green"><h3>Simple Explanation</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[1].replace("Simple Explanation:", "").trim()}</ReactMarkdown></div>}
+        {sections[2] && <div className="layer layer-blue"><h3>Technical Explanation</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[2].replace("Technical Explanation:", "").trim()}</ReactMarkdown></div>}
+        {sections[3] && <div className="layer layer-yellow"><h3>Interview Answer</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[3].replace("Interview Answer:", "").trim()}</ReactMarkdown></div>}
+        {sections[4] && <div className="layer layer-purple"><h3>Real-world Example</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[4].replace("Real-world Example:", "").trim()}</ReactMarkdown></div>}
+        {sections[5] && <div className="layer layer-code"><h3>Code Implementation</h3><ReactMarkdown remarkPlugins={[remarkGfm]}>{sections[5].replace("Code Implementation / Solution:", "").replace("Code Implementation:", "").trim()}</ReactMarkdown></div>}
       </div>
     );
   };
@@ -122,16 +149,16 @@ function App() {
   return (
     <div className="dashboard">
       <div className="header">
-        <h1>🚀 AI Interview Expert</h1>
+        <h1>AI Interview Expert</h1>
         <p>Master your core Computer Science concepts with RAG & Multi-Agents</p>
       </div>
 
       <div className="tabs">
         <button className={`tab-btn ${activeTab === 'explain' ? 'active' : ''}`} onClick={() => setActiveTab('explain')}>
-          <span>💬</span> Explainer Mode
+          Explainer Mode
         </button>
         <button className={`tab-btn ${activeTab === 'interview' ? 'active' : ''}`} onClick={() => setActiveTab('interview')}>
-          <span>🎯</span> Interview Mode
+          Interview Mode
         </button>
       </div>
 
@@ -208,7 +235,7 @@ function App() {
 
               {error && (
                 <div className="layer" style={{ borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.05)' }}>
-                  <h3 style={{ color: '#ef4444' }}>⚠️ System Error</h3>
+                  <h3 style={{ color: '#ef4444' }}>System Error</h3>
                   <p>{error}</p>
                 </div>
               )}
@@ -216,7 +243,7 @@ function App() {
               {evaluation && !loading && (
                 <div className="layer layer-purple" style={{ marginTop: '3rem' }}>
                   <h3>Expert Feedback Report</h3>
-                  <div style={{ whiteSpace: 'pre-line' }}>{evaluation}</div>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{evaluation}</ReactMarkdown>
                 </div>
               )}
             </div>
